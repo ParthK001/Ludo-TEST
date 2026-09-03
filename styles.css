@@ -1,6 +1,6 @@
 /* ==========================================================================
-   LUDO CLASSIC - 15x15 CSS Grid & Component Styles
-   Supports automatic Light & Dark themes via prefers-color-scheme
+   LUDO CLASSIC - HIGH FIDELITY RENDER SYSTEM (GPU-ACCELERATED)
+   Includes Pixel-Art selection markers and precise center triangle slots
    ========================================================================== */
 
 :root {
@@ -388,48 +388,10 @@
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
-.token-red {
-  background: var(--red-gradient);
-}
-
-.token-green {
-  background: var(--green-gradient);
-}
-
-.token-yellow {
-  background: var(--yellow-gradient);
-}
-
-.token-blue {
-  background: var(--blue-gradient);
-}
-
-/* Active / Playable Token Pulse Animation */
-.token.active,
-.token.pulse {
-  cursor: pointer;
-  animation: token-pulse 1.3s infinite ease-in-out;
-  z-index: 20;
-}
-
-.token.active:hover {
-  transform: scale(1.22);
-}
-
-@keyframes token-pulse {
-  0% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.9), 0 4px 6px rgba(0, 0, 0, 0.3);
-  }
-  50% {
-    transform: scale(1.15);
-    box-shadow: 0 0 0 7px rgba(255, 255, 255, 0), 0 8px 14px rgba(0, 0, 0, 0.4);
-  }
-  100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0), 0 4px 6px rgba(0, 0, 0, 0.3);
-  }
-}
+.token-red { background: var(--red-gradient); }
+.token-green { background: var(--green-gradient); }
+.token-yellow { background: var(--yellow-gradient); }
+.token-blue { background: var(--blue-gradient); }
 
 /* Multiple tokens on one square */
 .token-stack {
@@ -448,7 +410,89 @@
 }
 
 /* --------------------------------------------------------------------------
-   True 3D Dice – Stage, Cube, Faces, Pips, Impact, Shadow
+   PRECISE WIN-BOX (CENTER GOAL) TRIANGLE SLOTS
+   Uses absolute layout offsets, keeping won tokens strictly in their zones
+   -------------------------------------------------------------------------- */
+.center-home .token {
+  position: absolute !important;
+  width: 25% !important;
+  height: 25% !important;
+  z-index: 10 !important;
+  animation: none !important;
+}
+
+/* Red Triangle (Left Side) Slots */
+.center-home .token-red:nth-of-type(1) { top: 38% !important; left: 10% !important; }
+.center-home .token-red:nth-of-type(2) { top: 50% !important; left: 10% !important; }
+.center-home .token-red:nth-of-type(3) { top: 26% !important; left: 10% !important; }
+.center-home .token-red:nth-of-type(4) { top: 38% !important; left: 22% !important; }
+
+/* Green Triangle (Top Side) Slots */
+.center-home .token-green:nth-of-type(1) { top: 10% !important; left: 38% !important; }
+.center-home .token-green:nth-of-type(2) { top: 10% !important; left: 50% !important; }
+.center-home .token-green:nth-of-type(3) { top: 10% !important; left: 26% !important; }
+.center-home .token-green:nth-of-type(4) { top: 22% !important; left: 38% !important; }
+
+/* Yellow Triangle (Right Side) Slots */
+.center-home .token-yellow:nth-of-type(1) { top: 38% !important; right: 10% !important; }
+.center-home .token-yellow:nth-of-type(2) { top: 50% !important; right: 10% !important; }
+.center-home .token-yellow:nth-of-type(3) { top: 26% !important; right: 10% !important; }
+.center-home .token-yellow:nth-of-type(4) { top: 38% !important; right: 22% !important; }
+
+/* Blue Triangle (Bottom Side) Slots */
+.center-home .token-blue:nth-of-type(1) { bottom: 10% !important; left: 38% !important; }
+.center-home .token-blue:nth-of-type(2) { bottom: 10% !important; left: 50% !important; }
+.center-home .token-blue:nth-of-type(3) { bottom: 10% !important; left: 26% !important; }
+.center-home .token-blue:nth-of-type(4) { bottom: 22% !important; left: 38% !important; }
+
+/* --------------------------------------------------------------------------
+   PIXEL-ART RETRO SELECTION INDICATOR
+   Replaces the blurry glow with a sharp outline and a stepping floating arrow
+   -------------------------------------------------------------------------- */
+.token.active,
+.token.pulse {
+  cursor: pointer !important;
+  border: 3px solid #ffffff !important;
+  outline: 2px solid #000000 !important; /* Sharp outer retro outline */
+  animation: pixel-flash 0.5s steps(2) infinite !important;
+  z-index: 25 !important;
+}
+
+/* Floating Retro Triangle Indicator above the active token */
+.token.active::after,
+.token.pulse::after {
+  content: '▼';
+  position: absolute;
+  top: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: monospace;
+  font-size: 14px;
+  font-weight: 900;
+  color: #ffffff;
+  /* Pixel-art border outline for the icon */
+  text-shadow: 
+    -1px -1px 0 #000,  
+     1px -1px 0 #000,
+    -1px  1px 0 #000,
+     1px  1px 0 #000;
+  animation: pixel-bounce 0.6s steps(4) infinite;
+  z-index: 50;
+  pointer-events: none;
+}
+
+@keyframes pixel-flash {
+  0%, 100% { outline-color: #000000; }
+  50% { outline-color: #ffffff; }
+}
+
+@keyframes pixel-bounce {
+  0%, 100% { transform: translate(-50%, 0); }
+  50% { transform: translate(-50%, -4px); }
+}
+
+/* --------------------------------------------------------------------------
+   True 3D Dice – GPU Hardware Accelerated to Prevent Lag stutters
    -------------------------------------------------------------------------- */
 
 /* Scene: provides perspective depth */
@@ -458,6 +502,8 @@
   perspective: 1000px;
   cursor: pointer;
   user-select: none;
+  transform-style: preserve-3d;
+  will-change: transform;
 }
 
 /* The rotating cube wrapper */
@@ -468,8 +514,11 @@
   transform-style: preserve-3d;
   /* Elastic settling bounce when roll stops */
   transition: transform 1.2s cubic-bezier(0.2, 1.25, 0.3, 1.05);
-  /* Start showing face-1 (front face = 1) */
   transform: rotateX(0deg) rotateY(0deg);
+  /* Force GPU rendering to completely eliminate lags on web */
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 /* All 6 faces: absolute, same size as cube */
@@ -492,15 +541,20 @@
   box-sizing: border-box;
   padding: 12px;
   transition: background 0.3s ease, border-color 0.3s ease;
+  /* GPU acceleration triggers */
+  will-change: transform;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 /* Face positions: each face pushed out by half the cube size (40px) */
-.face-front  { transform: translateZ(40px); }
-.face-back   { transform: rotateY(180deg) translateZ(40px); }
-.face-right  { transform: rotateY(90deg)  translateZ(40px); }
-.face-left   { transform: rotateY(-90deg) translateZ(40px); }
-.face-top    { transform: rotateX(90deg)  translateZ(40px); }
-.face-bottom { transform: rotateX(-90deg) translateZ(40px); }
+.face-front  { transform: translate3d(0, 0, 40px); }
+.face-back   { transform: rotateY(180deg) translate3d(0, 0, 40px); }
+.face-right  { transform: rotateY(90deg)  translate3d(0, 0, 40px); }
+.face-left   { transform: rotateY(-90deg) translate3d(0, 0, 40px); }
+.face-top    { transform: rotateX(90deg)  translate3d(0, 0, 40px); }
+.face-bottom { transform: rotateX(-90deg) translate3d(0, 0, 40px); }
 
 /* Dark mode face overrides */
 @media (prefers-color-scheme: dark) {
@@ -538,7 +592,7 @@
 .pip-bl { bottom: 14px; left: 14px; }
 .pip-br { bottom: 14px; right: 14px; }
 
-/* 3. Impact squash-and-stretch when the cube lands */
+/* Impact squash-and-stretch when the cube lands */
 .dice-impact {
   animation: dice-impact-squash 0.16s ease-out forwards;
 }
@@ -549,7 +603,7 @@
   100% { transform: scaleY(1)    scaleX(1); }
 }
 
-/* 4. Dynamic landing shadow */
+/* Dynamic landing shadow */
 #dice-shadow {
   width: 80px;
   height: 10px;
@@ -624,8 +678,7 @@
   will-change: transform, opacity;
 }
 
-
-/* 5. Turn & Clickable Indicators */
+/* 5. Turn Indicator Glow */
 .active-turn-card {
   animation: active-turn-glow 2s infinite ease-in-out;
 }
@@ -638,23 +691,6 @@
   50% {
     transform: scale(1.015);
     box-shadow: 0 10px 22px -3px var(--active-turn-glow, rgba(239, 68, 68, 0.35)), 0 0 0 3px var(--active-turn-glow, rgba(239, 68, 68, 0.2));
-  }
-}
-
-/* Floating animation for selectable / eligible tokens */
-.floating-pawn {
-  cursor: pointer !important;
-  animation: floating-pawn-anim 1.2s infinite ease-in-out !important;
-  z-index: 25 !important;
-}
-
-@keyframes floating-pawn-anim {
-  0%, 100% {
-    transform: translateY(0px) scale(1);
-  }
-  50% {
-    transform: translateY(-6px) scale(1.14);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.35), 0 0 0 4px rgba(255, 255, 255, 0.7);
   }
 }
 
@@ -810,12 +846,12 @@
   }
 
   /* Adjust translate depth of the smaller cube faces (half of 46px is 23px) */
-  .face-front  { transform: translateZ(23px) !important; }
-  .face-back   { transform: rotateY(180deg) translateZ(23px) !important; }
-  .face-right  { transform: rotateY(90deg)  translateZ(23px) !important; }
-  .face-left   { transform: rotateY(-90deg) translateZ(23px) !important; }
-  .face-top    { transform: rotateX(90deg)  translateZ(23px) !important; }
-  .face-bottom { transform: rotateX(-90deg) translateZ(23px) !important; }
+  .face-front  { transform: translate3d(0, 0, 23px) !important; }
+  .face-back   { transform: rotateY(180deg) translate3d(0, 0, 23px) !important; }
+  .face-right  { transform: rotateY(90deg)  translate3d(0, 0, 23px) !important; }
+  .face-left   { transform: rotateY(-90deg) translate3d(0, 0, 23px) !important; }
+  .face-top    { transform: rotateX(90deg)  translate3d(0, 0, 23px) !important; }
+  .face-bottom { transform: rotateX(-90deg) translate3d(0, 0, 23px) !important; }
 
   /* Scale the pip dots to fit the smaller faces */
   .pip {
@@ -896,4 +932,3 @@
     border-radius: 6px !important;
   }
 }
-
