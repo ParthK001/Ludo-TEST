@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ludo Classic - 4 Player Web Game</title>
+
+  <!-- Tailwind CSS CDN with prefers-color-scheme (media) support -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'media',
+      theme: {
+        extend: {
+          colors: {
+            ludoRed: '#ef4444',
+            ludoGreen: '#10b981',
+            ludoYellow: '#eab308',
+            ludoBlue: '#3b82f6',
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen flex flex-col antialiased selection:bg-rose-500 selection:text-white transition-colors duration-300">
+
+  <!-- Top Navigation Bar -->
+  <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30 shadow-sm transition-colors">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-rose-500 via-amber-400 to-emerald-500 flex items-center justify-center shadow-md shadow-rose-500/20 text-white">
+          <i data-lucide="dices" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 dark:from-white dark:via-slate-200 dark:to-slate-400 bg-clip-text text-transparent leading-tight">Ludo Classic</h1>
+          <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Local 4-Player Board Game</p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-2">
+        <button id="btn-restart" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition flex items-center space-x-1.5 border border-slate-200 dark:border-slate-700 shadow-sm active:scale-95">
+          <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+          <span>Restart</span>
+        </button>
+        <button id="btn-rules" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition flex items-center space-x-1.5 border border-slate-200 dark:border-slate-700 shadow-sm active:scale-95">
+          <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+          <span>Rules</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Game Arena -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col lg:flex-row items-start justify-center gap-8">
+    
+    <!-- Left / Center: Ludo Board Container -->
+    <section class="w-full lg:flex-1 flex flex-col items-center justify-center">
+      <div id="board-container" class="w-full flex items-center justify-center p-2 sm:p-4 bg-white/70 dark:bg-slate-900/70 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/80 dark:border-slate-800/80 transition-colors">
+        
+        <!-- 15x15 CSS Grid Ludo Board -->
+        <div id="ludo-board" class="ludo-board" aria-label="15x15 Ludo Game Board">
+          
+          <!-- ================= CORNER BASES ================= -->
+          <!-- Top-Left Base: Red (Rows 1-6, Cols 1-6) -->
+          <div class="ludo-base base-red" id="base-red">
+            <div class="base-inner">
+              <div class="token-pocket" id="red-pocket-0">
+                <div class="token flex-shrink-0 token-red pulse" data-player="red" data-index="0" title="Red Token 1"></div>
+              </div>
+              <div class="token-pocket" id="red-pocket-1">
+                <div class="token flex-shrink-0 token-red pulse" data-player="red" data-index="1" title="Red Token 2"></div>
+              </div>
+              <div class="token-pocket" id="red-pocket-2">
+                <div class="token flex-shrink-0 token-red pulse" data-player="red" data-index="2" title="Red Token 3"></div>
+              </div>
+              <div class="token-pocket" id="red-pocket-3">
+                <div class="token flex-shrink-0 token-red pulse" data-player="red" data-index="3" title="Red Token 4"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top-Right Base: Green (Rows 1-6, Cols 10-15) -->
+          <div class="ludo-base base-green" id="base-green">
+            <div class="base-inner">
+              <div class="token-pocket" id="green-pocket-0">
+                <div class="token flex-shrink-0 token-green" data-player="green" data-index="0" title="Green Token 1"></div>
+              </div>
+              <div class="token-pocket" id="green-pocket-1">
+                <div class="token flex-shrink-0 token-green" data-player="green" data-index="1" title="Green Token 2"></div>
+              </div>
+              <div class="token-pocket" id="green-pocket-2">
+                <div class="token flex-shrink-0 token-green" data-player="green" data-index="2" title="Green Token 3"></div>
+              </div>
+              <div class="token-pocket" id="green-pocket-3">
+                <div class="token flex-shrink-0 token-green" data-player="green" data-index="3" title="Green Token 4"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom-Left Base: Blue (Rows 10-15, Cols 1-6) -->
+          <div class="ludo-base base-blue" id="base-blue">
+            <div class="base-inner">
+              <div class="token-pocket" id="blue-pocket-0">
+                <div class="token flex-shrink-0 token-blue" data-player="blue" data-index="0" title="Blue Token 1"></div>
+              </div>
+              <div class="token-pocket" id="blue-pocket-1">
+                <div class="token flex-shrink-0 token-blue" data-player="blue" data-index="1" title="Blue Token 2"></div>
+              </div>
+              <div class="token-pocket" id="blue-pocket-2">
+                <div class="token flex-shrink-0 token-blue" data-player="blue" data-index="2" title="Blue Token 3"></div>
+              </div>
+              <div class="token-pocket" id="blue-pocket-3">
+                <div class="token flex-shrink-0 token-blue" data-player="blue" data-index="3" title="Blue Token 4"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom-Right Base: Yellow (Rows 10-15, Cols 10-15) -->
+          <div class="ludo-base base-yellow" id="base-yellow">
+            <div class="base-inner">
+              <div class="token-pocket" id="yellow-pocket-0">
+                <div class="token flex-shrink-0 token-yellow" data-player="yellow" data-index="0" title="Yellow Token 1"></div>
+              </div>
+              <div class="token-pocket" id="yellow-pocket-1">
+                <div class="token flex-shrink-0 token-yellow" data-player="yellow" data-index="1" title="Yellow Token 2"></div>
+              </div>
+              <div class="token-pocket" id="yellow-pocket-2">
+                <div class="token flex-shrink-0 token-yellow" data-player="yellow" data-index="2" title="Yellow Token 3"></div>
+              </div>
+              <div class="token-pocket" id="yellow-pocket-3">
+                <div class="token flex-shrink-0 token-yellow" data-player="yellow" data-index="3" title="Yellow Token 4"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ================= CENTER HOME ================= -->
+          <!-- Center Goal: 3x3 (Rows 7-9, Cols 7-9) -->
+          <div class="center-home" id="center-home">
+            <div class="center-triangle triangle-red"></div>
+            <div class="center-triangle triangle-green"></div>
+            <div class="center-triangle triangle-yellow"></div>
+            <div class="center-triangle triangle-blue"></div>
+            <div class="center-centerpiece">
+              <i data-lucide="crown" class="w-4 h-4 sm:w-5 sm:h-5 text-amber-500 fill-amber-400"></i>
+            </div>
+          </div>
+
+          <!-- ================= TRACK CELLS ================= -->
+          <!-- TOP ARM (Cols 7-9, Rows 1-6) -->
+          <!-- Row 1 -->
+          <div class="cell" style="grid-row: 1; grid-column: 7;" data-row="1" data-col="7"></div>
+          <div class="cell" style="grid-row: 1; grid-column: 8;" data-row="1" data-col="8"><span class="home-arrow">↓</span></div>
+          <div class="cell" style="grid-row: 1; grid-column: 9;" data-row="1" data-col="9"></div>
+          <!-- Row 2 -->
+          <div class="cell" style="grid-row: 2; grid-column: 7;" data-row="2" data-col="7"></div>
+          <div class="cell cell-path-green" style="grid-row: 2; grid-column: 8;" data-row="2" data-col="8"></div>
+          <div class="cell cell-start-green" style="grid-row: 2; grid-column: 9;" data-row="2" data-col="9" title="Green Start Square"></div>
+          <!-- Row 3 -->
+          <div class="cell cell-safe" style="grid-row: 3; grid-column: 7;" data-row="3" data-col="7" title="Safe Star Cell"></div>
+          <div class="cell cell-path-green" style="grid-row: 3; grid-column: 8;" data-row="3" data-col="8"></div>
+          <div class="cell" style="grid-row: 3; grid-column: 9;" data-row="3" data-col="9"></div>
+          <!-- Row 4 -->
+          <div class="cell" style="grid-row: 4; grid-column: 7;" data-row="4" data-col="7"></div>
+          <div class="cell cell-path-green" style="grid-row: 4; grid-column: 8;" data-row="4" data-col="8"></div>
+          <div class="cell" style="grid-row: 4; grid-column: 9;" data-row="4" data-col="9"></div>
+          <!-- Row 5 -->
+          <div class="cell" style="grid-row: 5; grid-column: 7;" data-row="5" data-col="7"></div>
+          <div class="cell cell-path-green" style="grid-row: 5; grid-column: 8;" data-row="5" data-col="8"></div>
+          <div class="cell" style="grid-row: 5; grid-column: 9;" data-row="5" data-col="9"></div>
+          <!-- Row 6 -->
+          <div class="cell" style="grid-row: 6; grid-column: 7;" data-row="6" data-col="7"></div>
+          <div class="cell cell-path-green" style="grid-row: 6; grid-column: 8;" data-row="6" data-col="8"></div>
+          <div class="cell" style="grid-row: 6; grid-column: 9;" data-row="6" data-col="9"></div>
+
+          <!-- LEFT ARM (Cols 1-6, Rows 7-9) -->
+          <!-- Row 7 -->
+          <div class="cell" style="grid-row: 7; grid-column: 1;" data-row="7" data-col="1"></div>
+          <div class="cell cell-start-red" style="grid-row: 7; grid-column: 2;" data-row="7" data-col="2" title="Red Start Square"></div>
+          <div class="cell" style="grid-row: 7; grid-column: 3;" data-row="7" data-col="3"></div>
+          <div class="cell" style="grid-row: 7; grid-column: 4;" data-row="7" data-col="4"></div>
+          <div class="cell" style="grid-row: 7; grid-column: 5;" data-row="7" data-col="5"></div>
+          <div class="cell" style="grid-row: 7; grid-column: 6;" data-row="7" data-col="6"></div>
+          <!-- Row 8 -->
+          <div class="cell" style="grid-row: 8; grid-column: 1;" data-row="8" data-col="1"><span class="home-arrow">→</span></div>
+          <div class="cell cell-path-red" style="grid-row: 8; grid-column: 2;" data-row="8" data-col="2"></div>
+          <div class="cell cell-path-red" style="grid-row: 8; grid-column: 3;" data-row="8" data-col="3"></div>
+          <div class="cell cell-path-red" style="grid-row: 8; grid-column: 4;" data-row="8" data-col="4"></div>
+          <div class="cell cell-path-red" style="grid-row: 8; grid-column: 5;" data-row="8" data-col="5"></div>
+          <div class="cell cell-path-red" style="grid-row: 8; grid-column: 6;" data-row="8" data-col="6"></div>
+          <!-- Row 9 -->
+          <div class="cell" style="grid-row: 9; grid-column: 1;" data-row="9" data-col="1"></div>
+          <div class="cell" style="grid-row: 9; grid-column: 2;" data-row="9" data-col="2"></div>
+          <div class="cell cell-safe" style="grid-row: 9; grid-column: 3;" data-row="9" data-col="3" title="Safe Star Cell"></div>
+          <div class="cell" style="grid-row: 9; grid-column: 4;" data-row="9" data-col="4"></div>
+          <div class="cell" style="grid-row: 9; grid-column: 5;" data-row="9" data-col="5"></div>
+          <div class="cell" style="grid-row: 9; grid-column: 6;" data-row="9" data-col="6"></div>
+
+          <!-- RIGHT ARM (Cols 10-15, Rows 7-9) -->
+          <!-- Row 7 -->
+          <div class="cell" style="grid-row: 7; grid-column: 10;" data-row="7" data-col="10"></div>
+          <div class="cell" style="grid-row: 7; grid-column: 11;" data-row="7" data-col="11"></div>
+          <div class="cell" style="grid-row: 7; grid-column: 12;" data-row="7" data-col="12"></div>
+          <div class="cell cell-safe" style="grid-row: 7; grid-column: 13;" data-row="7" data-col="13" title="Safe Star Cell"></div>
+          <div class="cell" style="grid-row: 7; grid-column: 14;" data-row="7" data-col="14"></div>
+          <div class="cell" style="grid-row: 7; grid-column: 15;" data-row="7" data-col="15"></div>
+          <!-- Row 8 -->
+          <div class="cell cell-path-yellow" style="grid-row: 8; grid-column: 10;" data-row="8" data-col="10"></div>
+          <div class="cell cell-path-yellow" style="grid-row: 8; grid-column: 11;" data-row="8" data-col="11"></div>
+          <div class="cell cell-path-yellow" style="grid-row: 8; grid-column: 12;" data-row="8" data-col="12"></div>
+          <div class="cell cell-path-yellow" style="grid-row: 8; grid-column: 13;" data-row="8" data-col="13"></div>
+          <div class="cell cell-path-yellow" style="grid-row: 8; grid-column: 14;" data-row="8" data-col="14"></div>
+          <div class="cell" style="grid-row: 8; grid-column: 15;" data-row="8" data-col="15"><span class="home-arrow">←</span></div>
+          <!-- Row 9 -->
+          <div class="cell" style="grid-row: 9; grid-column: 10;" data-row="9" data-col="10"></div>
+          <div class="cell" style="grid-row: 9; grid-column: 11;" data-row="9" data-col="11"></div>
+          <div class="cell" style="grid-row: 9; grid-column: 12;" data-row="9" data-col="12"></div>
+          <div class="cell" style="grid-row: 9; grid-column: 13;" data-row="9" data-col="13"></div>
+          <div class="cell cell-start-yellow" style="grid-row: 9; grid-column: 14;" data-row="9" data-col="14" title="Yellow Start Square"></div>
+          <div class="cell" style="grid-row: 9; grid-column: 15;" data-row="9" data-col="15"></div>
+
+          <!-- BOTTOM ARM (Cols 7-9, Rows 10-15) -->
+          <!-- Row 10 -->
+          <div class="cell" style="grid-row: 10; grid-column: 7;" data-row="10" data-col="7"></div>
+          <div class="cell cell-path-blue" style="grid-row: 10; grid-column: 8;" data-row="10" data-col="8"></div>
+          <div class="cell" style="grid-row: 10; grid-column: 9;" data-row="10" data-col="9"></div>
+          <!-- Row 11 -->
+          <div class="cell" style="grid-row: 11; grid-column: 7;" data-row="11" data-col="7"></div>
+          <div class="cell cell-path-blue" style="grid-row: 11; grid-column: 8;" data-row="11" data-col="8"></div>
+          <div class="cell" style="grid-row: 11; grid-column: 9;" data-row="11" data-col="9"></div>
+          <!-- Row 12 -->
+          <div class="cell" style="grid-row: 12; grid-column: 7;" data-row="12" data-col="7"></div>
+          <div class="cell cell-path-blue" style="grid-row: 12; grid-column: 8;" data-row="12" data-col="8"></div>
+          <div class="cell" style="grid-row: 12; grid-column: 9;" data-row="12" data-col="9"></div>
+          <!-- Row 13 -->
+          <div class="cell" style="grid-row: 13; grid-column: 7;" data-row="13" data-col="7"></div>
+          <div class="cell cell-path-blue" style="grid-row: 13; grid-column: 8;" data-row="13" data-col="8"></div>
+          <div class="cell cell-safe" style="grid-row: 13; grid-column: 9;" data-row="13" data-col="9" title="Safe Star Cell"></div>
+          <!-- Row 14 -->
+          <div class="cell cell-start-blue" style="grid-row: 14; grid-column: 7;" data-row="14" data-col="7" title="Blue Start Square"></div>
+          <div class="cell cell-path-blue" style="grid-row: 14; grid-column: 8;" data-row="14" data-col="8"></div>
+          <div class="cell" style="grid-row: 14; grid-column: 9;" data-row="14" data-col="9"></div>
+          <!-- Row 15 -->
+          <div class="cell" style="grid-row: 15; grid-column: 7;" data-row="15" data-col="7"></div>
+          <div class="cell" style="grid-row: 15; grid-column: 8;" data-row="15" data-col="8"><span class="home-arrow">↑</span></div>
+          <div class="cell" style="grid-row: 15; grid-column: 9;" data-row="15" data-col="9"></div>
+
+        </div>
+      </div>
+
+      <!-- Quick Legend Below Board -->
+      <div class="mt-4 flex flex-wrap items-center justify-center gap-4 text-xs text-slate-500 dark:text-slate-400 font-medium">
+        <div class="flex items-center space-x-1.5">
+          <span class="w-3 h-3 rounded-full bg-rose-500 shadow-sm"></span>
+          <span>Red (Player 1)</span>
+        </div>
+        <div class="flex items-center space-x-1.5">
+          <span class="w-3 h-3 rounded-full bg-emerald-500 shadow-sm"></span>
+          <span>Green (Player 2)</span>
+        </div>
+        <div class="flex items-center space-x-1.5">
+          <span class="w-3 h-3 rounded-full bg-amber-400 shadow-sm"></span>
+          <span>Yellow (Player 3)</span>
+        </div>
+        <div class="flex items-center space-x-1.5">
+          <span class="w-3 h-3 rounded-full bg-blue-500 shadow-sm"></span>
+          <span>Blue (Player 4)</span>
+        </div>
+        <div class="flex items-center space-x-1">
+          <span class="text-slate-600 dark:text-slate-400 font-bold">★</span>
+          <span>Safe Squares</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right: Sidebar (Controls, Turn Indicator, Dice, and Log) -->
+    <aside class="w-full lg:w-96 flex flex-col gap-5">
+
+      <!-- Current Turn Indicator Card -->
+      <div id="current-turn-card" class="bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 rounded-2xl p-5 shadow-sm border transition-all active-turn-card">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Current Turn</span>
+          <span id="turn-badge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-200 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-900/80 transition-colors">
+            <span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+            Player 1's Turn
+          </span>
+        </div>
+
+        <div class="flex items-center space-x-3.5 pt-1">
+          <div id="player-avatar-bg" class="w-12 h-12 rounded-xl bg-gradient-to-tr from-rose-500 to-red-400 flex items-center justify-center text-white shadow-md shadow-red-500/20">
+            <i data-lucide="user" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h2 id="current-player-name" class="text-lg font-bold text-slate-800 dark:text-slate-100">Red Player</h2>
+            <p id="turn-instruction" class="text-xs text-slate-500 dark:text-slate-400 font-medium">Roll a 6 to bring a token onto the track!</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dice Roller Section -->
+      <div class="bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 rounded-2xl p-6 shadow-sm border flex flex-col items-center justify-center text-center transition-colors">
+        <div class="w-full flex items-center justify-between mb-4">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Dice Roller</span>
+          <span id="dice-status" class="text-xs font-semibold text-slate-500 dark:text-slate-400">Ready to roll</span>
+        </div>
+
+        <!-- True 3D Dice Stage -->
+        <div class="my-3 flex flex-col items-center justify-center gap-1">
+          <div id="dice-scene" title="Click to roll dice">
+            <div id="dice-cube">
+              <!-- Face 1 (front → value 1) -->
+              <div class="dice-face-3d face-front">
+                <span class="pip pip-c"></span>
+              </div>
+              <!-- Face 6 (back → value 6) -->
+              <div class="dice-face-3d face-back">
+                <span class="pip pip-tl"></span><span class="pip pip-tr"></span>
+                <span class="pip pip-ml"></span><span class="pip pip-mr"></span>
+                <span class="pip pip-bl"></span><span class="pip pip-br"></span>
+              </div>
+              <!-- Face 2 (right → value 2) -->
+              <div class="dice-face-3d face-right">
+                <span class="pip pip-tr"></span>
+                <span class="pip pip-bl"></span>
+              </div>
+              <!-- Face 5 (left → value 5) -->
+              <div class="dice-face-3d face-left">
+                <span class="pip pip-tl"></span><span class="pip pip-tr"></span>
+                <span class="pip pip-c"></span>
+                <span class="pip pip-bl"></span><span class="pip pip-br"></span>
+              </div>
+              <!-- Face 3 (top → value 3) -->
+              <div class="dice-face-3d face-top">
+                <span class="pip pip-tr"></span>
+                <span class="pip pip-c"></span>
+                <span class="pip pip-bl"></span>
+              </div>
+              <!-- Face 4 (bottom → value 4) -->
+              <div class="dice-face-3d face-bottom">
+                <span class="pip pip-tl"></span><span class="pip pip-tr"></span>
+                <span class="pip pip-bl"></span><span class="pip pip-br"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Landing shadow -->
+          <div id="dice-shadow"></div>
+
+          <div class="mt-1 text-xs font-semibold text-slate-400 dark:text-slate-500" id="last-roll-text">
+            Rolled: <span id="dice-value" class="text-slate-800 dark:text-slate-100 font-bold text-sm">1</span>
+          </div>
+        </div>
+
+        <!-- Roll Button -->
+        <button id="btn-roll" class="mt-3 w-full py-3 px-4 rounded-xl bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white font-semibold text-sm shadow-md shadow-red-500/20 active:scale-[0.98] transition flex items-center justify-center space-x-2">
+          <i data-lucide="dice-5" class="w-4 h-4"></i>
+          <span>Roll Dice</span>
+        </button>
+      </div>
+
+      <!-- 4-Player Token Status Overview -->
+      <div class="bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 rounded-2xl p-4 shadow-sm border transition-colors">
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 block mb-3">Player Progress</span>
+        
+        <div class="grid grid-cols-2 gap-2.5">
+          <!-- Red Mini Status -->
+          <div class="p-2.5 rounded-xl bg-rose-50/80 border border-rose-100 dark:bg-rose-950/30 dark:border-rose-900/50 flex items-center justify-between transition-colors">
+            <div class="flex items-center space-x-2">
+              <div class="w-3 h-3 rounded-full bg-red-500"></div>
+              <span class="text-xs font-bold text-slate-700 dark:text-slate-200">Red</span>
+            </div>
+            <span id="score-red" class="text-xs font-semibold text-rose-600 dark:text-rose-400">0/4 Home</span>
+          </div>
+
+          <!-- Green Mini Status -->
+          <div class="p-2.5 rounded-xl bg-emerald-50/80 border border-emerald-100 dark:bg-emerald-950/30 dark:border-emerald-900/50 flex items-center justify-between transition-colors">
+            <div class="flex items-center space-x-2">
+              <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
+              <span class="text-xs font-bold text-slate-700 dark:text-slate-200">Green</span>
+            </div>
+            <span id="score-green" class="text-xs font-semibold text-emerald-600 dark:text-emerald-400">0/4 Home</span>
+          </div>
+
+          <!-- Yellow Mini Status -->
+          <div class="p-2.5 rounded-xl bg-amber-50/80 border border-amber-100 dark:bg-amber-950/30 dark:border-amber-900/50 flex items-center justify-between transition-colors">
+            <div class="flex items-center space-x-2">
+              <div class="w-3 h-3 rounded-full bg-amber-500"></div>
+              <span class="text-xs font-bold text-slate-700 dark:text-slate-200">Yellow</span>
+            </div>
+            <span id="score-yellow" class="text-xs font-semibold text-amber-600 dark:text-amber-400">0/4 Home</span>
+          </div>
+
+          <!-- Blue Mini Status -->
+          <div class="p-2.5 rounded-xl bg-blue-50/80 border border-blue-100 dark:bg-blue-950/30 dark:border-blue-900/50 flex items-center justify-between transition-colors">
+            <div class="flex items-center space-x-2">
+              <div class="w-3 h-3 rounded-full bg-blue-500"></div>
+              <span class="text-xs font-bold text-slate-700 dark:text-slate-200">Blue</span>
+            </div>
+            <span id="score-blue" class="text-xs font-semibold text-blue-600 dark:text-blue-400">0/4 Home</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Game Message Log -->
+      <div class="bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 rounded-2xl p-4 shadow-sm border flex flex-col h-64 transition-colors">
+        <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-100 dark:border-slate-800">
+          <div class="flex items-center space-x-1.5 text-slate-600 dark:text-slate-400">
+            <i data-lucide="scroll-text" class="w-4 h-4 text-slate-400 dark:text-slate-500"></i>
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Game Activity Log</span>
+          </div>
+          <button id="btn-clear-log" class="text-[11px] font-medium text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 transition">Clear</button>
+        </div>
+
+        <div id="game-log" class="flex-1 overflow-y-auto custom-scrollbar space-y-2 pr-1 text-xs">
+          <!-- Initial activity log entries -->
+          <div class="flex items-start space-x-2 text-slate-600 dark:text-slate-400">
+            <span class="text-[10px] text-slate-400 dark:text-slate-500 font-mono pt-0.5">12:00</span>
+            <div class="flex-1">
+              <span class="font-semibold text-slate-700 dark:text-slate-300">Game initialized.</span> Welcome to 4-Player Ludo Classic!
+            </div>
+          </div>
+          <div class="flex items-start space-x-2 text-slate-600 dark:text-slate-400">
+            <span class="text-[10px] text-slate-400 dark:text-slate-500 font-mono pt-0.5">12:00</span>
+            <div class="flex-1">
+              <span class="inline-block px-1.5 py-0.2 text-[10px] font-bold rounded bg-rose-100 text-rose-700 dark:bg-rose-950/70 dark:text-rose-300 dark:border dark:border-rose-900/60 mr-1">RED</span>
+              <span>Red player starts the match. Click Roll Dice!</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+  </main>
+
+  <!-- Script Files -->
+  <script src="game.js" defer></script>
+</body>
+</html>
